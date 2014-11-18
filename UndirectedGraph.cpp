@@ -1,6 +1,7 @@
 #include "UndirectedGraph.hpp"
 #include "Edge.hpp"
 #include "Vertex.hpp"
+#include <iostream>
 
 using namespace std;
     /**
@@ -31,19 +32,27 @@ using namespace std;
             vertices.insert(make_pair(to, toV));
             vertices.insert(make_pair(from, fromV));
             fromV->addEdge(toV, cost, length); 
+            toV->addEdge(fromV, cost, length);
         }
         else if(vertices.find(to) != vertices.end() &&
             vertices.find(from) == vertices.end()){
+            toV = vertices.at(to);
             vertices.insert(make_pair(from, fromV));
             fromV->addEdge(toV, cost, length);
+            toV->addEdge(fromV, cost, length);
         }
         else if(vertices.find(to) == vertices.end() &&
                 vertices.find(from) != vertices.end()){
+            fromV = vertices.at(from);
             vertices.insert(make_pair(to, toV));
             fromV->addEdge(toV, cost, length);
+            toV->addEdge(fromV, cost, length);
         }
         else{
+            toV = vertices.at(to);
+            fromV = vertices.at(from);
             fromV->addEdge(toV, cost, length);
+            toV->addEdge(fromV, cost, length);
         }
     }
 
@@ -54,7 +63,11 @@ using namespace std;
      * of all Edges terminating at all Vertices, divided by 2.
      */
     unsigned int UndirectedGraph::totalEdgeCost() const{
-        return -1;
+        int totalCost = 0;
+        for(auto vert : vertices){
+            totalCost += vert.second->totalEdgeCost();
+        }
+        return totalCost/2;
     }
     
     /**

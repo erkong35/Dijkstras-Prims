@@ -65,11 +65,11 @@ class Vertex {
     unsigned int totalEdgeCost() const;
     
   private:
+    std::unordered_map<std::string, Edge> edges;
     /**
      * Returns a reference to the internal map of Edges.
      * Used by UndirectedGraph for Dijkstra/Prim algorithms.
      */
-    const std::unordered_map<std::string, Edge> &getEdges() const;
 
     /**
      * Name of this Vertex.
@@ -91,7 +91,7 @@ class Vertex {
     /**
      * Map of adjacent Vertex name to Edge describing the adjacency.
      */
-    std::unordered_map<std::string, Edge> edges;
+    const std::unordered_map<std::string, Edge> &getEdges() const;
 };
 
 #endif

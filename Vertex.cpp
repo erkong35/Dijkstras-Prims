@@ -1,6 +1,7 @@
 #include "Vertex.hpp"
 
 #include <string>
+#include <iostream>
 // Method implementations here
 
 using namespace std;
