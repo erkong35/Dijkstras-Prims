@@ -21,7 +21,7 @@ using namespace std;
      *
      * If either of the named vertices does not exist, it is created.
      */
-    void UndirectedGraph::addEdge(const std::string &from, const std::string &to,
+    void UndirectedGraph::addEdge(const string &from, const string &to,
             unsigned int cost, unsigned int length){
         Vertex *fromV = new Vertex(from);
         Vertex *toV = new Vertex(to);
@@ -33,16 +33,20 @@ using namespace std;
             fromV->addEdge(toV, cost, length); 
         }
         else if(vertices.find(to) != vertices.end() &&
-            vertices.find(from) == vertices.end()){
+                vertices.find(from) == vertices.end()){
+            toV = vertices.at(to);
             vertices.insert(make_pair(from, fromV));
             fromV->addEdge(toV, cost, length);
         }
         else if(vertices.find(to) == vertices.end() &&
                 vertices.find(from) != vertices.end()){
+            fromV = vertices.at(from);
             vertices.insert(make_pair(to, toV));
             fromV->addEdge(toV, cost, length);
         }
         else{
+            toV = vertices.at(to);
+            fromV = vertices.at(from);
             fromV->addEdge(toV, cost, length);
         }
     }
