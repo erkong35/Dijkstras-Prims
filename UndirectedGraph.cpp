@@ -83,6 +83,9 @@ using namespace std;
      * impossible is undefined behavior.
      */
     void UndirectedGraph::minSpanningTree(){
+        if(this->vertices.size() == 0){
+            return;
+        }
         UndirectedGraph* MST = new UndirectedGraph();
         priority_queue<Edge, vector<Edge>> pq;
         vector<Vertex*> allVerts;
@@ -129,18 +132,21 @@ using namespace std;
      *
      * Returns max possible distance if the given Vertex does not appear
      * in the graph, or if any of the Vertices in the graph are not
-     * reachable from the given Vertex. Otherwise, returns the combined
+     * reach
      * distance.
      */
     unsigned int UndirectedGraph::totalDistance(const std::string &from){
         priority_queue<pair<Vertex*,unsigned int>, 
                        vector<pair<Vertex*, unsigned int>>,
                        UndirectedGraph::DijkstraVertexComparator> pq;
+        Vertex* tmpV;
         for(auto vert : vertices){
             vert.second->setDistance(INT_MAX);
             vert.second->setVisited(false);
+            if(vert.second->getName() == from){
+                tmpV = vert.second;
+            }
         }
-        Vertex* tmpV = new Vertex(from);
         tmpV->setDistance(0);
         pair<Vertex*, unsigned int> vPair = make_pair(tmpV, 
                                                       tmpV->getDistance());
@@ -149,6 +155,7 @@ using namespace std;
         pair<Vertex*, unsigned int> tempPair2;
         unsigned int tmpDist1 = 0;
         unsigned int tmpDist2 = 0;
+        unsigned int totalDist = 0;
         while(!(pq.empty())){
             tempPair = pq.top();
             pq.pop();
@@ -161,9 +168,11 @@ using namespace std;
                     if(!(edge.second.getTo()->wasVisited())){
                         tmpDist1 = tempPair.first->getDistance();
                         tmpDist2 = edge.second.getLength();
-                        tempPair.first->setDistance(tmpDist1 + tmpDist2);
-                        if(tmpDist2 < edge.second.getTo()->getDistance()){
-                            edge.second.getTo()->setDistance(tmpDist2);
+                        //tempPair.first->setDistance(tmpDist1 + tmpDist2);
+                        if(tmpDist1 + tmpDist2 < 
+                           edge.second.getTo()->getDistance()){
+                            edge.second.getTo()->setDistance(tmpDist2+tmpDist1);
+                            totalDist += tmpDist2 + tmpDist1;
                             tempPair2 = make_pair(edge.second.getTo(),
                                         edge.second.getTo()->getDistance());
                             pq.push(tempPair2); 
@@ -172,7 +181,7 @@ using namespace std;
                 }
             }             
         }
-        return tempPair.first->getDistance();
+        return totalDist;
     } 
     
     /**
@@ -186,5 +195,5 @@ using namespace std;
         for(auto vert : vertices){
             totalDist += this->totalDistance(vert.second->getName());
         }
-        return totalDist/2;
+        return totalDist;
     }
