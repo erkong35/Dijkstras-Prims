@@ -91,8 +91,10 @@ class UndirectedGraph {
     class DijkstraVertexComparator {
       public:
         bool operator()(const std::pair<Vertex*, unsigned int> &left,
-                const std::pair<Vertex*, unsigned int> &right);
-    };
+                const std::pair<Vertex*, unsigned int> &right){
+            return left.second > right.second;
+            }
+       };
     
     /**
      * Map of vertex name to Vertex.

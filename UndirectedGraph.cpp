@@ -1,6 +1,10 @@
 #include "UndirectedGraph.hpp"
 #include "Edge.hpp"
 #include "Vertex.hpp"
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <climits>
 
 using namespace std;
     /**
@@ -31,23 +35,27 @@ using namespace std;
             vertices.insert(make_pair(to, toV));
             vertices.insert(make_pair(from, fromV));
             fromV->addEdge(toV, cost, length); 
+            toV->addEdge(fromV, cost, length);
         }
         else if(vertices.find(to) != vertices.end() &&
                 vertices.find(from) == vertices.end()){
             toV = vertices.at(to);
             vertices.insert(make_pair(from, fromV));
             fromV->addEdge(toV, cost, length);
+            toV->addEdge(fromV, cost, length);
         }
         else if(vertices.find(to) == vertices.end() &&
                 vertices.find(from) != vertices.end()){
             fromV = vertices.at(from);
             vertices.insert(make_pair(to, toV));
             fromV->addEdge(toV, cost, length);
+            toV->addEdge(fromV, cost, length);
         }
         else{
             toV = vertices.at(to);
             fromV = vertices.at(from);
             fromV->addEdge(toV, cost, length);
+            toV->addEdge(fromV, cost, length);
         }
     }
 
@@ -58,7 +66,11 @@ using namespace std;
      * of all Edges terminating at all Vertices, divided by 2.
      */
     unsigned int UndirectedGraph::totalEdgeCost() const{
-        return -1;
+        unsigned int totalCost = 0;
+        for(auto vert : vertices){
+            totalCost += vert.second->totalEdgeCost();
+        }
+        return totalCost/2;
     }
     
     /**
@@ -71,7 +83,44 @@ using namespace std;
      * impossible is undefined behavior.
      */
     void UndirectedGraph::minSpanningTree(){
+        UndirectedGraph* MST = new UndirectedGraph();
+        priority_queue<Edge, vector<Edge>> pq;
+        vector<Vertex*> allVerts;
+        for(auto vert : vertices){
+            vert.second->setVisited(false);    
+            allVerts.push_back(vert.second);
+        }
+        Vertex* tmpVert = allVerts.front();
+        tmpVert->setVisited(true);
 
+        for(auto edge : tmpVert->edges){
+            pq.push(edge.second);
+        }
+        
+        Vertex* tmpTo;
+        Vertex* tmpFrom;
+        unsigned int costE, lengthE;
+        while(!(pq.empty())){
+            tmpFrom = pq.top().getFrom();
+            costE = pq.top().getCost();
+            lengthE = pq.top().getLength();
+            tmpTo = pq.top().getTo();
+            pq.pop();
+            if(tmpTo->wasVisited()){
+                continue;                 
+            }
+            else{
+                tmpTo->setVisited(true);
+                MST->addEdge(tmpFrom->getName(), tmpTo->getName(),
+                             costE, lengthE); 
+                for(auto edge : tmpTo->edges){
+                    if(!(edge.second.getTo()->wasVisited())){
+                        pq.push(edge.second);
+                    }
+                }
+            }
+        }
+        this->vertices = MST->vertices;
     }
     
     /**
@@ -84,7 +133,46 @@ using namespace std;
      * distance.
      */
     unsigned int UndirectedGraph::totalDistance(const std::string &from){
-        return -1;
+        priority_queue<pair<Vertex*,unsigned int>, 
+                       vector<pair<Vertex*, unsigned int>>,
+                       UndirectedGraph::DijkstraVertexComparator> pq;
+        for(auto vert : vertices){
+            vert.second->setDistance(INT_MAX);
+            vert.second->setVisited(false);
+        }
+        Vertex* tmpV = new Vertex(from);
+        tmpV->setDistance(0);
+        pair<Vertex*, unsigned int> vPair = make_pair(tmpV, 
+                                                      tmpV->getDistance());
+        pq.push(vPair);
+        pair<Vertex*, unsigned int> tempPair;
+        pair<Vertex*, unsigned int> tempPair2;
+        unsigned int tmpDist1 = 0;
+        unsigned int tmpDist2 = 0;
+        while(!(pq.empty())){
+            tempPair = pq.top();
+            pq.pop();
+            if(tempPair.first->wasVisited()){
+                continue;
+            }
+            else{
+                tempPair.first->setVisited(true);
+                for(auto edge : tempPair.first->edges){
+                    if(!(edge.second.getTo()->wasVisited())){
+                        tmpDist1 = tempPair.first->getDistance();
+                        tmpDist2 = edge.second.getLength();
+                        tempPair.first->setDistance(tmpDist1 + tmpDist2);
+                        if(tmpDist2 < edge.second.getTo()->getDistance()){
+                            edge.second.getTo()->setDistance(tmpDist2);
+                            tempPair2 = make_pair(edge.second.getTo(),
+                                        edge.second.getTo()->getDistance());
+                            pq.push(tempPair2); 
+                        }
+                    }
+                }
+            }             
+        }
+        return tempPair.first->getDistance();
     } 
     
     /**
@@ -94,24 +182,9 @@ using namespace std;
      * Returns max possible distance if the graph is not connected.
      */
     unsigned int UndirectedGraph::totalDistance(){
-        return -1;
+        unsigned int totalDist = 0;
+        for(auto vert : vertices){
+            totalDist += this->totalDistance(vert.second->getName());
+        }
+        return totalDist/2;
     }
-    
-    /**
-     * Comparison functor for use with Dijkstra's algorithm. Allows Vertices
-     * to be added to a priority queue more than once, with different weights.
-     *
-     * Each pair represents a Vertex and its weight when it was added to the
-     * queue. This guarantees that the weight used to order the Vertices in
-     * the queue never changes (a required invariant of a priority queue),
-     * even though the weight of the Vertex itself may change.
-     *
-     * Returns true if left's weight when it was inserted into the queue is
-     * higher than right's weight when it was inserted into the queue.
-     */
-    class DijkstraVertexComparator {
-      public:
-        bool operator()(const std::pair<Vertex*, unsigned int> &left,
-                const std::pair<Vertex*, unsigned int> &right);
-    };
-    
