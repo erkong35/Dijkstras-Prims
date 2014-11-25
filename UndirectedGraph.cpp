@@ -16,7 +16,11 @@ using namespace std;
     /**
      * Destructs an UndirectedGraph.
      */
-    UndirectedGraph::~UndirectedGraph(){}
+    UndirectedGraph::~UndirectedGraph(){
+        for(auto vert : vertices){
+            vert.second->clearEdges();
+        }
+    }
     
     /**
      * Inserts an edge into the graph. If an edge already exists between
@@ -140,16 +144,21 @@ using namespace std;
                        vector<pair<Vertex*, unsigned int>>,
                        UndirectedGraph::DijkstraVertexComparator> pq;
         Vertex* tmpV;
+        pair<Vertex*, unsigned int> vPair;
         for(auto vert : vertices){
             vert.second->setDistance(INT_MAX);
             vert.second->setVisited(false);
             if(vert.second->getName() == from){
-                tmpV = vert.second;
+                //tmpV = vert.second;
+                vert.second->setDistance(0);
+                vPair = make_pair(vert.second, vert.second->getDistance());
             }
         }
-        tmpV->setDistance(0);
-        pair<Vertex*, unsigned int> vPair = make_pair(tmpV, 
-                                                      tmpV->getDistance());
+       // tmpV->setDistance(0);
+        //pair<Vertex*, unsigned int> vPair = make_pair(tmpV, 
+                                                    //  tmpV->getDistance());
+        unordered_map<string, unsigned int> distances;
+        distances.insert(make_pair(from, 0));
         pq.push(vPair);
         pair<Vertex*, unsigned int> tempPair;
         pair<Vertex*, unsigned int> tempPair2;
@@ -166,20 +175,34 @@ using namespace std;
                 tempPair.first->setVisited(true);
                 for(auto edge : tempPair.first->edges){
                     if(!(edge.second.getTo()->wasVisited())){
-                        tmpDist1 = tempPair.first->getDistance();
+                        //tmpDist1 = tempPair.first->getDistance();
+                        tmpDist1 = tempPair.second;
                         tmpDist2 = edge.second.getLength();
                         //tempPair.first->setDistance(tmpDist1 + tmpDist2);
                         if(tmpDist1 + tmpDist2 < 
                            edge.second.getTo()->getDistance()){
                             edge.second.getTo()->setDistance(tmpDist2+tmpDist1);
-                            totalDist += tmpDist2 + tmpDist1;
+                            if(distances[edge.second.getTo()->getName()] ==
+                               NULL){
+                                distances[edge.second.getTo()->getName()] =
+                                tmpDist1 + tmpDist2;
+                            }
+                            else if(tmpDist1 + tmpDist2 <
+                                    distances[edge.second.getTo()->getName()]){
+                                distances[edge.second.getTo()->getName()] = 
+                                tmpDist1 + tmpDist2;
+                            }
+                            //totalDist += tmpDist2 + tmpDist1;
                             tempPair2 = make_pair(edge.second.getTo(),
                                         edge.second.getTo()->getDistance());
                             pq.push(tempPair2); 
-                        }
+                       }
                     }
                 }
             }             
+        }
+        for(auto dist : distances){
+            totalDist += dist.second; 
         }
         return totalDist;
     } 

@@ -28,8 +28,8 @@ int main(int argc, char **argv) {
     // Data Structs to hold the variables
     vector<string> to;
     vector<string> from;
-    vector<int> cost;
-    vector<int> length;
+    vector<unsigned int> cost;
+    vector<unsigned int> length;
 
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " infile" << std::endl;
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 
     // string and int variables for adding to the vectors
     string str;
-    int i;
+    unsigned int i;
 
     while(true){
         in >> str;
@@ -66,11 +66,11 @@ int main(int argc, char **argv) {
         bob->addEdge(to[j], from[j], cost[j], length[j]);
     }
 
-    int totalCost = bob->totalEdgeCost();
-    int totalTime = bob->totalDistance();
+    unsigned int totalCost = bob->totalEdgeCost();
+    unsigned int totalTime = bob->totalDistance();
     bob->minSpanningTree();
-    int mstCost = bob->totalEdgeCost();
-    int mstTime = bob->totalDistance();
+    unsigned int mstCost = bob->totalEdgeCost();
+    unsigned int mstTime = bob->totalDistance();
     cout << totalCost << endl;
     cout << mstCost << endl;
     cout << totalCost - mstCost << endl;
