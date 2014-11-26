@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
     vector<unsigned int> cost;
     vector<unsigned int> length;
 
+    // if number of arguments passed in is not 2, print usage
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " infile" << std::endl;
         return EXIT_FAILURE;
@@ -61,23 +62,41 @@ int main(int argc, char **argv) {
         length.push_back(i);
     }
 
+    /**
+     * create undirected graph from the input file
+     */
     UndirectedGraph *bob = new UndirectedGraph();
     for(unsigned int j = 0; j < to.size(); j++){
         bob->addEdge(to[j], from[j], cost[j], length[j]);
     }
 
+    // get total edge cost of inital graph
     unsigned int totalCost = bob->totalEdgeCost();
+
+    // get total distance of inital graph, by using Dijkstra's algorithm on 
+    // all the vertices
     unsigned int totalTime = bob->totalDistance();
+
+    // create minimum spanning tree of the inital graph, using Prim's algorithm
     bob->minSpanningTree();
+
+    // get total edge cost of minimum spanning tree
     unsigned int mstCost = bob->totalEdgeCost();
+
+    // get total distance of minimum spanning tree, using Dijkstra's algorithm
+    // on all the vertices
     unsigned int mstTime = bob->totalDistance();
+
+    // print out all the costs and distances
     cout << totalCost << endl;
     cout << mstCost << endl;
     cout << totalCost - mstCost << endl;
     cout << totalTime << endl;
     cout << mstTime << endl;
     cout << mstTime - totalTime << endl;
-    // Implementation here
+
+    // delete graph
+    delete(bob);
 
     return EXIT_SUCCESS;
 }
