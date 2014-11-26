@@ -76,7 +76,7 @@ using namespace std;
      */
     unsigned int Vertex::totalEdgeCost() const{
         int cost = 0;
-        for(auto key: edges){
+        for(auto key : edges){
             cost += key.second.getCost();
         }
         return cost;

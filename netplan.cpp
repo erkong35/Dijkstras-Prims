@@ -47,6 +47,10 @@ int main(int argc, char **argv) {
     string str;
     unsigned int i;
 
+    /**
+     * while file is not empty, parse input so that we can make a graph from
+     * the input
+     */
     while(true){
         in >> str;
         if(in.eof()) break;
